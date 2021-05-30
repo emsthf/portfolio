@@ -413,3 +413,32 @@ p {
 .testimonial__speech-bubble a {
   color: var(--color-blue);
 }
+
+/* Contect */
+#contect {
+  background-color: var(--color-night);
+}
+
+.contect__title,
+.contect__email,
+.contect__right {
+  color: var(--color-white);
+}
+
+.contect__title {
+  margin: 32px 0;
+}
+
+.contect__links {
+  font-size: var(--font-large);
+  margin: 24px 0;
+}
+
+.contect__links i {
+  transition: all var(--animation-duration) ease-in;
+}
+
+.contect__links i:hover {
+  transform: scale(1.1);
+  color: var(--color-yellow);
+}
