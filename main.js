@@ -21,8 +21,15 @@ navbarMenu.addEventListener('click', (event) => {
     if(link == null) {
         return;
     }
+    navbarMenu.classList.remove('open');
     console.log(link);
     scrollIntoView(link);
+});
+
+// Navbar toggle button for small screen
+const navbarToggleBtn = document.querySelector('.navbar__toggle-btn');
+navbarToggleBtn.addEventListener('click', () => {
+    navbarMenu.classList.toggle('open');
 });
 
 // handle click on "contect me" button on home
