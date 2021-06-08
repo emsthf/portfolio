@@ -4,8 +4,8 @@
 const navbar = document.querySelector('#navbar');
 const navbarHeight = navbar.getBoundingClientRect().height;
 document.addEventListener('scroll', () => {
-    console.log(window.scrollY);
-    console.log(`navbarHeight: ${navbarHeight}`);
+    // console.log(window.scrollY);
+    // console.log(`navbarHeight: ${navbarHeight}`);
     if(window.scrollY > navbarHeight) {
         navbar.classList.add('navbar--dark');
     } else {
@@ -22,7 +22,7 @@ navbarMenu.addEventListener('click', (event) => {
         return;
     }
     navbarMenu.classList.remove('open');
-    console.log(link);
+    // console.log(link);
     scrollIntoView(link);
 });
 
@@ -42,8 +42,8 @@ homeContectBtn.addEventListener('click', () => {
 const home = document.querySelector('.home__container');
 const homeHeight = home.getBoundingClientRect().height;
 document.addEventListener('scroll', () => {
-    console.log(`homeHeight: ${homeHeight}`);
-    console.log(1 - window.scrollY / homeHeight);
+    // console.log(`homeHeight: ${homeHeight}`);
+    // console.log(1 - window.scrollY / homeHeight);
     home.style.opacity = 1 - window.scrollY / homeHeight;
 });
 
@@ -82,7 +82,7 @@ workBtnContainer.addEventListener('click', (e) => {
     projectContainer.classList.add('anim-out');
     setTimeout(() => {
         projects.forEach((project) => {
-            console.log(project.dataset.type);
+            // console.log(project.dataset.type);
             if(filter === '*' || filter === project.dataset.type) {
                 project.classList.remove('invisible');
             } else {
@@ -94,7 +94,60 @@ workBtnContainer.addEventListener('click', (e) => {
 });
 
 
+
+// 1. 모든 섹션 요소들과 메뉴아이템들을 가지고 온다
+// 2. InersectionObserver를 이용해서 모든 섹션들을 관찰한다
+// 3. 보여지는 섹션에 해당하는 메뉴 아이템을 활성화 시킨다
+
+const sectionIds = ['#home', '#about', '#skills', '#work', '#testimonials', '#contect'];
+const sections = sectionIds.map(id => document.querySelector(id)); // map은 배열을 하나하나 씩 돌면서 변환 가능한 api
+const navItems = sectionIds.map(id => document.querySelector(`[data-link="${id}"]`));
+// console.log(sections);
+// console.log(navItems);
+
+let selectedNavIndex = 0;
+let selectedNavItem = navItems[0];
+function selectNavItem(selected) {
+    selectedNavItem.classList.remove('active');
+    selectedNavItem = selected;
+    selectedNavItem.classList.add('active');
+}
+
 function scrollIntoView(selector) {
     const scrollTo = document.querySelector(selector);
     scrollTo.scrollIntoView({behavior: 'smooth'});
+    selectNavItem(navItems[sectionIds.indexOf(selector)]);
 }
+
+const observerOptions = {
+    root: null, 
+    rootMargin: '0px', 
+    threshold: 0.3, 
+};
+
+const observerCallback = (entries, observer) => {
+    entries.forEach(entry => {
+        // console.log(entry.target);
+        if(!entry.isIntersecting && entry.intersectionRatio > 0) { // 밖으로 나가고 and 스크린에 요소가 조금이라도 들어와 있을 때만 처리해준다
+            const index = sectionIds.indexOf(`#${entry.target.id}`);
+            // console.log(index, entry.target.id);
+            if(entry.boundingClientRect.y < 0) {  // y 좌표가 음수 = 스크롤링이 아래로 되어서 페이지가 올라옴
+                selectedNavIndex = index + 1;
+            } else {
+                selectedNavIndex = index - 1;
+            }
+        }
+    });
+};
+
+const observer = new IntersectionObserver(observerCallback, observerOptions);
+sections.forEach(section => observer.observe(section));
+
+window.addEventListener('wheel', () => {
+    if(window.scrollY === 0) {
+        selectedNavIndex = 0;
+    } else if(Math.round(window.scrollY + window.innerHeight) === document.body.clientHeight) {
+        selectedNavIndex = navItems.length - 1;
+    }
+    selectNavItem(navItems[selectedNavIndex]);
+});
